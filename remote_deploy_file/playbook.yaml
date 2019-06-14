@@ -1,0 +1,7 @@
+---
+- hosts: ci-build-ecs
+  tasks:
+  - name: copy clean_disk.py to target
+    win_template:
+      src: templates/clean_disk.py
+      dest: C:\Jenkins\clean_disk.py

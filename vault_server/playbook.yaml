@@ -1,0 +1,8 @@
+---
+- hosts: ubuntu
+  vars:
+    splunk_cli: "{{splunk.dest}}/splunk/bin/splunk"
+
+  roles:
+    - role: install
+    - role: sync

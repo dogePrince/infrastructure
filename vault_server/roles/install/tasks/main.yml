@@ -1,0 +1,44 @@
+---
+# deploy splunk light
+
+- name: Download Vault from Web
+  get_url:
+    url: "{{splunk.src}}"
+    dest: "{{splunk.dest}}/splunklight.tgz"
+    headers: "X-JFrog-Art-Api: {{artifactory_token}}"
+    timeout: 120
+
+- name: Extract splunklight.tgz
+  unarchive:
+    src: "{{splunk.dest}}/splunklight.tgz"
+    dest: "{{splunk.dest}}"
+    remote_src: yes
+
+- name: Set admin credential file
+  template:
+    src: templates/user-seed.conf.j2
+    dest: "{{splunk.dest}}/splunk/etc/system/local/user-seed.conf"
+
+- name: Install Splunk
+  command: "{{splunk_cli}} start --accept-license --answer-yes"
+
+- name: Set web port to 80
+  command: "{{splunk_cli}} set web-port 80 -auth {{splunk.usr}}:{{splunk.psw}}"
+
+- name: Enable auto start on boot
+  command: "{{splunk_cli}} enable boot-start"
+
+- name: Restart Splunk
+  command: "{{splunk_cli}} restart"
+
+- name: Enable http-event-collector globally
+  command: '{{splunk_cli}} http-event-collector update -enable-ssl 0 -disabled 0 -port 8000 -uri "https://localhost:8089" -auth {{splunk.usr}}:{{splunk.psw}}'
+
+- name: Create index named "overall"
+  command: "{{splunk_cli}} add index overall -auth {{splunk.usr}}:{{splunk.psw}}"
+
+- name: Create an HTTP Event Collector token
+  command: '{{splunk_cli}} http-event-collector create Inventor_Dashboard_of_Engineering -index overall -indexes overall -sourcetype _json -uri "https://localhost:8089" -auth {{splunk.usr}}:{{splunk.psw}}'
+
+- name: Create guest account
+  command: '{{splunk_cli}} add user {{splunk.guest}} -password {{splunk.guest_psw}} -role user -auth {{splunk.usr}}:{{splunk.psw}}'

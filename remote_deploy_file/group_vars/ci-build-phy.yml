@@ -1,0 +1,6 @@
+ansible_user: itools
+ansible_password: "{{ lookup('hashi_vault', 'secret=spg/invtools-prd/generic/jenkins-nodes/accounts:itools@local')}}"
+ansible_port: 5986
+ansible_connection: winrm
+ansible_winrm_server_cert_validation: ignore
+validate_certs: false

@@ -1,0 +1,8 @@
+- name: Copy sync.sh.j2 to {{splunk.dest}}/sync.sh
+  template:
+    src: templates/sync.sh.j2
+    dest: "{{splunk.dest}}/sync.sh"
+    mode: '0700'
+
+- name: Sync dashboard configuration files
+  command: "{{splunk.dest}}/sync.sh"
